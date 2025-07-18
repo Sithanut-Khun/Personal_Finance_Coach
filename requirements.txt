@@ -1,4 +1,2 @@
 pandas
 Faker
-streamlit
-firebase-admin
