@@ -1,5 +1,3 @@
-# Streamlit + NeonDB + Authenticated Expense Tracker
-
 import streamlit as st
 import uuid
 import pandas as pd
@@ -23,7 +21,7 @@ cookies = EncryptedCookieManager(
 if not cookies.ready():
     st.stop()
 
-# ----------------------------- LOAD DB CONFIG FROM .streamlit/secrets.toml -----------------------------
+# ----------------------------- LOAD DB CONFIG -----------------------------
 DB_CONFIG = toml.load("src/.streamlit/secrets.toml")['database']
 
 @st.cache_resource
