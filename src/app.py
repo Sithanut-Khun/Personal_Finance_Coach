@@ -29,11 +29,20 @@ def get_db_engine():
     db_uri = (
         f"postgresql+psycopg2://{DB_CONFIG['user']}:{DB_CONFIG['password']}"
         f"@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}"
+        "?sslmode=require"  
     )
-    return create_engine(db_uri)
+    return create_engine(
+        db_uri,
+        pool_size=5,  
+        max_overflow=10,
+        pool_pre_ping=True 
+    )
 
 def get_connection():
-    return psycopg2.connect(**DB_CONFIG)
+    return psycopg2.connect(
+        **DB_CONFIG,
+        sslmode="require"  
+    )
 
 # ----------------------------- AUTHENTICATION -----------------------------
 def hash_password(password):
@@ -234,8 +243,8 @@ def show_signup():
         st.subheader("Sign Up")
         with st.form("signup_form"):
             email = st.text_input("Email", key="signup_email", max_chars=40, help="Max 40 characters allowed")
-            password = st.text_input("Password", type="password", key="signup_password")
-            confirm_password = st.text_input("Confirm Password", type="password", key="signup_confirm_password")
+            password = st.text_input("Password", type="password", key="signup_password", max_chars=40, help="Max 40 characters allowed")
+            confirm_password = st.text_input("Confirm Password", type="password", key="signup_confirm_password", max_chars=40)
             username = st.text_input("What should we call you?", key="signup_username", max_chars=30, help="Max 30 characters allowed")
             submitted = st.form_submit_button("Register")
             
@@ -414,7 +423,7 @@ def show_expense_form(expense_data=None):
                 try:
                     conn = get_connection()
                     cursor = conn.cursor()
-                    item_id =  str(uuid.uuid4())  
+                    item_id = uuid.uuid4()  
                     cursor.execute("""
                         INSERT INTO expenses (item_id, user_id, entry_date, amount, currency, merchant_name, transaction_type, category_label, sub_category, payment_method, item_description_raw)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
