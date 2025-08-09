@@ -235,10 +235,10 @@ def show_signup():
     with form_col:
         st.subheader("Sign Up")
         with st.form("signup_form"):
-            email = st.text_input("Email", key="signup_email")
+            email = st.text_input("Email", key="signup_email", max_chars=40, help="Max 40 characters allowed")
             password = st.text_input("Password", type="password", key="signup_password")
             confirm_password = st.text_input("Confirm Password", type="password", key="signup_confirm_password")
-            username = st.text_input("What should we call you?", key="signup_username")
+            username = st.text_input("What should we call you?", key="signup_username", max_chars=30, help="Max 30 characters allowed")
             submitted = st.form_submit_button("Register")
             
             if submitted:
@@ -260,7 +260,7 @@ def show_signup():
 
 
 def show_update_username():
-    new_username = st.text_input("New Username", value=st.session_state.username)
+    new_username = st.text_input("New Username", value=st.session_state.username, max_chars=30, help="Max 30 characters allowed")
     if st.button("✅ Save Changes", key="update_username_button"):
         if new_username.strip():
             update_username(st.session_state.user_id, new_username)
