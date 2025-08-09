@@ -1,2 +1,5 @@
 *\venv
 *.csv
+*\.streamlit
+*.toml
+Test.py
