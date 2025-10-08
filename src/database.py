@@ -13,7 +13,7 @@ def get_db_engine():
     db_uri = (
         f"postgresql+psycopg2://{DB_CONFIG['user']}:{DB_CONFIG['password']}"
         f"@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}"
-        "?sslmode=require"
+        "?sslmode=prefer"
     )
     return create_engine(
         db_uri,
@@ -26,5 +26,6 @@ def get_connection():
     """Establishes a new psycopg2 connection."""
     return psycopg2.connect(
         **DB_CONFIG,
-        sslmode="require"
+        # sslmode="require"
+         sslmode="prefer"
     )

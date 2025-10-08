@@ -4,3 +4,4 @@
 *.toml
 Test.py
 *\tests
+.txt

@@ -8,6 +8,7 @@ from src.ui.auth_pages import show_login_page, show_signup_page, show_reset_page
 from src.ui.profile_page import show_profile_page
 from src.ui.expense_page import show_expense_page
 from src.expense_manager import get_expenses_as_df
+from src.ui.dashboard_page import show_dashboard_page
 
 # --- COOKIE SETUP ---
 cookie_secret = st.secrets["cookie"]["secret"]
@@ -47,7 +48,20 @@ def main():
     st.title("💰 Smart Expense Tracker")
 
     with st.sidebar:
-        st.success(f"Welcome {st.session_state.username}!", icon="👋")
+        # st.success(f"Welcome {st.session_state.username}!", icon="👋")
+        st.markdown(
+            f"""
+            <div style='display: flex; justify-content: center; margin-bottom: 1rem;'>
+                <div style='background-color: rgb(14, 184, 2); padding: 0.5rem 1rem; 
+                     border-radius: 0.5rem; text-align: center; width: 100%;'>
+                    <p style='color: white; margin: 0;'>
+                        Welcome {st.session_state.username}! 👋
+                    </p>
+                </div>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
         st.markdown("---")
         
         tabs = ["Expense", "Dashboard", "Chatbot", "User Profile"]
@@ -88,7 +102,8 @@ def main():
     if st.session_state.active_tab == "Expense":
         show_expense_page()
     elif st.session_state.active_tab == "Dashboard":
-        st.markdown("## 📈 Dashboard (Coming Soon...)")
+        # st.markdown("## 📈 Dashboard (Coming Soon...)")
+        show_dashboard_page()
     elif st.session_state.active_tab == "Chatbot":
         st.markdown("## 🤖 Chatbot (Coming Soon...)")
     elif st.session_state.active_tab == "User Profile":
