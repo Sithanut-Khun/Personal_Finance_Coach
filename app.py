@@ -7,7 +7,7 @@ from streamlit_cookies_manager import EncryptedCookieManager
 from src.ui.auth_pages import show_login_page, show_signup_page, show_reset_page
 from src.ui.profile_page import show_profile_page
 from src.ui.expense_page import show_expense_page
-from src.expense_manager import get_expenses_as_df # For clearing cache on logout
+from src.expense_manager import get_expenses_as_df
 
 # --- COOKIE SETUP ---
 cookie_secret = st.secrets["cookie"]["secret"]
@@ -66,8 +66,22 @@ def main():
             cookies["email"] = ""
             cookies["username"] = ""
             cookies.save()
-            st.session_state.clear() # Clear all session state
-            get_expenses_as_df.clear() # Clear data cache
+            # st.session_state.clear() # Clear all session state
+            # get_expenses_as_df.clear() # Clear data cache
+            # st.rerun()
+            
+            # clear only auth-related session state keys (avoid clearing internal cookie manager state)
+            for k in ["user_id", "email", "username", "auth_page", "active_tab"]:
+                if k in st.session_state:
+                    del st.session_state[k]
+
+            # clear cached data that depends on user session
+            try:
+                get_expenses_as_df.clear()
+            except Exception:
+                pass
+
+            # force a rerun to return to the login page
             st.rerun()
 
     # --- RENDER ACTIVE TAB ---
