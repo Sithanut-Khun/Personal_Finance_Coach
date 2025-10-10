@@ -1,6 +1,5 @@
 # app.py
 import streamlit as st
-import toml
 from streamlit_cookies_manager import EncryptedCookieManager
 
 # Import UI pages
@@ -9,6 +8,7 @@ from src.ui.profile_page import show_profile_page
 from src.ui.expense_page import show_expense_page
 from src.expense_manager import get_expenses_as_df
 from src.ui.dashboard_page import show_dashboard_page
+from src.ui.chatbot_page import show_chatbot_page
 
 # --- COOKIE SETUP ---
 cookie_secret = st.secrets["cookie"]["secret"]
@@ -105,7 +105,8 @@ def main():
         # st.markdown("## 📈 Dashboard (Coming Soon...)")
         show_dashboard_page()
     elif st.session_state.active_tab == "Chatbot":
-        st.markdown("## 🤖 Chatbot (Coming Soon...)")
+        # st.markdown("## 🤖 Chatbot (Coming Soon...)")
+        show_chatbot_page()
     elif st.session_state.active_tab == "User Profile":
         show_profile_page(cookies)
 

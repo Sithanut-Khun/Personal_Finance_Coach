@@ -5,7 +5,7 @@ from datetime import datetime
 from src.expense_manager import get_expenses_as_df
 
 # Constants for currency conversion
-KHR_TO_USD = 4100  # Update this rate as needed
+KHR_TO_USD = 4050  # Update this rate as needed
 
 def convert_to_currency(amount, from_currency, to_currency):
     if from_currency == to_currency:
@@ -16,25 +16,54 @@ def convert_to_currency(amount, from_currency, to_currency):
         return amount * KHR_TO_USD
     return amount
 
+
+@st.cache_data
+def process_expense_data(df, start_date, end_date, display_currency):
+    """Process and filter expense data with caching"""
+    if df.empty:
+        return pd.DataFrame()
+
+    # Convert dates and filter
+    df = df.copy()
+    df['entry_date'] = pd.to_datetime(df['entry_date']).dt.date
+    df = df[(df['entry_date'] >= start_date) & (df['entry_date'] <= end_date)]
+
+    if df.empty:
+        return df
+
+    # Convert amounts
+    df['converted_amount'] = df.apply(
+        lambda x: convert_to_currency(x['amount'], x['currency'], display_currency),
+        axis=1
+    )
+
+    # Clean merchant names
+    df['merchant_name'] = df['merchant_name'].fillna('Other')
+    df.loc[df['merchant_name'].str.strip() == '', 'merchant_name'] = 'Other'
+
+    return df
+
+@st.cache_data
+def get_initial_data(_user_id, start_date, end_date):
+    """Fetch initial data with caching"""
+    return get_expenses_as_df(_user_id, start_date, end_date)
+
 def show_dashboard_page():
     st.header("📈 Expense Dashboard")
 
-    # --- Load Data ---
-    # Load all data initially to find the date range for the selectors
+    # Load initial data with caching
     initial_start_date = datetime(2000, 1, 1).date()
     initial_end_date = datetime.now().date()
     
-    all_df = get_expenses_as_df(st.session_state.user_id, initial_start_date, initial_end_date)
+    all_df = get_initial_data(st.session_state.user_id, initial_start_date, initial_end_date)
     
     if all_df.empty:
         st.warning("No expense data found. Add some expenses to see the dashboard.")
         return
 
-    # Convert entry_date to just date objects for comparison
-    all_df['entry_date'] = pd.to_datetime(all_df['entry_date']).dt.date
-    
-    earliest_date = all_df['entry_date'].min()
-    latest_date = all_df['entry_date'].max()
+    # Get date range
+    earliest_date = pd.to_datetime(all_df['entry_date']).dt.date.min()
+    latest_date = pd.to_datetime(all_df['entry_date']).dt.date.max()
 
     # --- Filters ---
     col1, col2, col3 = st.columns([2, 2, 1])
@@ -65,23 +94,19 @@ def show_dashboard_page():
         st.error("Error: Start date cannot be after end date.")
         return
 
-    # Filter data based on selected date range
-    df = all_df[(all_df['entry_date'] >= start_date) & (all_df['entry_date'] <= end_date)]
+    # Process data with caching
+    df = process_expense_data(all_df, start_date, end_date, display_currency)
     
     if df.empty:
         st.warning("No expense data available for the selected period.")
         return
 
-    # --- Data Processing ---
-    df['converted_amount'] = df.apply(
-        lambda x: convert_to_currency(x['amount'], x['currency'], display_currency),
-        axis=1
-    )
+    # Set currency symbol
     currency_symbol = "៛" if display_currency == "KHR" else "$"
     
     # Replace blank merchant names with 'Other'
-    df['merchant_name'] = df['merchant_name'].str.strip().fillna('Other')
-    df.loc[df['merchant_name'] == '', 'merchant_name'] = 'Other'
+    df['merchant_name'] = df['merchant_name'].fillna('Other')
+    df.loc[df['merchant_name'].str.strip() == '', 'merchant_name'] = 'Other'
 
 
     # --- Display Metrics ---
